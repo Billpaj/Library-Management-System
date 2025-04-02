@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Library Dashboard</title>
+    <link rel="stylesheet" href="css/user.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </head>
+<body>
+
+  <!-- Header Bar -->
+  <header class="header-bar">
+    <div class="header-left">
+      <img src="assets/images/library-book-logo-template.jpg" alt="Library Logo">
+      <span>Library System</span>
+    </div>
+
+    <div class="header-right">
+      <a href="#">Profile</a>
+      <div class="nav-link">
+        <a href="#">My Books <i class="fas fa-caret-down"></i></a>
+        <div class="dropdown">
+          <a href="#">Books Borrowed</a>
+          <div class="borrowed-list">
+          <a href="#">Due This Week</a>
+          <a href="#">Total Books Read</a>
+        </div>
+      </div>
+      <div class="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search books..." />
+      </div>
+      <a href="#">Logout</a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <h2>Available Books to Borrow</h2>
+    <div id="bookGrid" class="book-grid"></div>
+
+    <div class="book-grid">
+      <div class="book-card">
+        <img src="assets/images/book1.jpg" alt="Book">
+        <h4>The Alchemist</h4>
+        <p>Paulo Coelho</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book.jpg" alt="Book">
+        <h4>1984</h4>
+        <p>George Orwell</p>
+        <button>Borrow</button>
+      </div>
+      <div class="book-card">
+        <img src="assets/images/book3.jpg" alt="Book">
+        <h4>The Hobbit</h4>
+        <p>J.R.R. Tolkien</p>
+        <button>Borrow</button>
+      </div>
+      <!-- Repeat for additional books -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <p>&copy; 2025 Library Management System. All rights reserved.</p>
+
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <span>|</span>
+      <a href="#">Terms of Use</a>
+      <span>|</span>
+      <a href="#">Contact Us</a>
+    </div>
+
+    <div class="social-icons">
+      <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+    </div>
+  </div>
+</footer>
+
+  <script src="user.js"></script>
+</body>
+</html>

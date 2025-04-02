@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Library Login</title>
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+
+  <!-- Embedded CSS -->
+  <style>
+    :root {
+      --primary-color: #2E8B57;
+      --background-color: #f3f6fa;
+      --input-border: #ccc;
+      --hover-color: #276947;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      max-width: 1000px;
+      width: 90%;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .login-section {
+      flex: 1;
+      padding: 50px 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .logo img {
+      height: 50px;
+    }
+
+    .logo span {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    .login-description {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .form-group,
+    select {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      font-size: 15px;
+      background-color: #f9f9f9;
+      transition: border 0.3s;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      display: block;
+      color: #444;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .login-button:hover {
+      background-color: var(--hover-color);
+    }
+
+    .login-link {
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .login-link a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .image-section {
+      flex: 1;
+      background: url('https://cdn.pixabay.com/photo/2016/01/30/17/39/library-1173863_1280.jpg') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .image-section i {
+      font-size: 80px;
+      color: rgba(255, 255, 255, 0.8);
+      z-index: 2;
+    }
+
+    .image-section::after {
+      content: "";
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.3);
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .image-section {
+        display: none;
+      }
+
+      .login-section {
+        padding: 30px 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Login Section -->
+    <section class="login-section">
+      <div class="logo">
+        <img src="assets/css/images/library-book-logo-template.jpg" alt="Library Logo" />
+        <span>Library System</span>
+      </div>
+
+      <h1>Log In</h1>
+      <p class="login-description">
+        Access books, manage your loans, and explore learning resources.
+      </p>
+
+      <form class="login-form" action="login.php" method="POST">
+        <div class="form-group">
+          <input type="email" name="email" placeholder="Email" required />
+        </div>
+        <div class="form-group">
+          <input type="password" name="password" placeholder="Password" required />
+        </div>
+        <label for="role">Role:</label>
+        <select name="role" id="role" required>
+          <option value="">Select your role</option>
+          <option value="admin">Admin</option>
+          <option value="user">User</option>
+        </select>
+        <button type="submit" class="login-button">Log In</button>
+      </form>
+
+      <div class="login-link">
+        Don’t have an account? <a href="/signup.html">Sign Up</a>
+      </div>
+    </section>
+
+    <!-- Image Section -->
+    <section class="image-section">
+      <i class="fas fa-book-open"></i>
+    </section>
+  </div>
+
+</body>
+</html>

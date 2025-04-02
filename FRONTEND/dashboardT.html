@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - MongoDB Style</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/BACKEND/css/admin.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Admin Panel</h2>
+    <ul>
+      <li>Dashboard</li>
+      <li>Manage Books</li>
+      <li>Users</li>
+      <li>Settings</li>
+      <li>Logout</li>
+    </ul>
+    <button id="toggle-theme" class="btn btn-toggle">Toggle Theme</button>
+  </div>
+
+  <div class="content">
+    <h1>Manage Books</h1>
+
+    <div class="charts">
+      <div class="chart-card">
+        <canvas id="bookChart"></canvas>
+      </div>
+    </div>
+
+    <button class="btn btn-add" onclick="openModal()">Add New Book</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>ISBN</th>
+          <th>Genre</th>
+          <th>Quantity</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="book-list"></tbody>
+    </table>
+  </div>
+
+  <div class="modal" id="bookModal">
+    <div class="modal-content">
+      <h2 id="modal-title">Add New Book</h2>
+      <input type="text" id="book-title" placeholder="Book Title">
+      <input type="text" id="book-author" placeholder="Author">
+      <input type="text" id="book-isbn" placeholder="ISBN">
+      <input type="text" id="book-genre" placeholder="Genre">
+      <input type="text" id="book-quantity" placeholder="Quantity">
+      <button class="btn btn-add" onclick="saveBook()">Save</button>
+      <button class="btn btn-close" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/BACKEND/js/admin.js"></script>
+</body>
+</html>
