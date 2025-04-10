@@ -1,10 +1,5 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['email'])) {
-  header("Location: login.html");
-  exit();
-}
+include '../BACKEND/session-check.php'; // Ensure session protection
 ?>
 
 <!DOCTYPE html>
@@ -17,7 +12,7 @@ if (!isset($_SESSION['email'])) {
 </head>
 <body>
   <header>
-    <h1>Welcome, <?php echo htmlspecialchars($_SESSION['email']); ?>!</h1>
+    <h1>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h1>
     <p>Role: <?php echo htmlspecialchars($_SESSION['role']); ?></p>
     <a href="logout.php" class="btn">Logout</a>
   </header>
