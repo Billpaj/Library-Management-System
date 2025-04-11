@@ -1,13 +1,18 @@
 <?php
 $host = 'localhost';
-$db = 'library_db';
+$db   = 'library_system';
 $user = 'root';
-$pass = ''; // default for XAMPP
+$pass = 'root123';
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+  PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+  PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
 
 try {
-  $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (PDOException $e) {
-  die("Database connection failed: " . $e->getMessage());
+  die("Connection failed: " . $e->getMessage());
 }
-?>

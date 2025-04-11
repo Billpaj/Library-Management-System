@@ -1,9 +1,11 @@
+// admin.js with delete and edit functionality
+
 let selectedBookIndex = null;
 let books = [];
 
 const body = document.body;
 const toggleBtn = document.getElementById("toggle-theme");
-const ctx = document.getElementById("bookChart").getContext("2d");
+const ctx = document.getElementById("bookChart")?.getContext("2d");
 
 function openModal(index = null) {
   selectedBookIndex = index;
@@ -19,34 +21,95 @@ function closeModal() {
   document.getElementById("bookModal").style.display = "none";
 }
 
-function saveBook() {
-  const book = {
-    title: document.getElementById("book-title").value,
-    author: document.getElementById("book-author").value,
-    isbn: document.getElementById("book-isbn").value,
-    genre: document.getElementById("book-genre").value,
-    quantity: document.getElementById("book-quantity").value
-  };
+function showMessage(message, isError = false) {
+  const msgBox = document.createElement('div');
+  msgBox.innerText = message;
+  msgBox.style.position = 'fixed';
+  msgBox.style.top = '20px';
+  msgBox.style.right = '20px';
+  msgBox.style.padding = '10px 20px';
+  msgBox.style.borderRadius = '6px';
+  msgBox.style.color = '#fff';
+  msgBox.style.backgroundColor = isError ? '#e74c3c' : '#2ecc71';
+  msgBox.style.zIndex = 1000;
+  document.body.appendChild(msgBox);
+  setTimeout(() => msgBox.remove(), 3000);
+}
 
-  if (selectedBookIndex !== null) {
-    books[selectedBookIndex] = book;
-  } else {
-    books.push(book);
+function saveBook() {
+  const title = document.getElementById("book-title").value.trim();
+  const author = document.getElementById("book-author").value.trim();
+  const isbn = document.getElementById("book-isbn").value.trim();
+  const genre = document.getElementById("book-genre").value.trim();
+  const quantity = document.getElementById("book-quantity").value.trim();
+
+  if (!title || !author || !isbn || !genre || !quantity || isNaN(quantity)) {
+    showMessage("Please fill out all fields correctly.", true);
+    return;
   }
 
-  renderBooks();
-  updateChart();
-  closeModal();
+  const book = { title, author, isbn, genre, quantity };
+  const method = selectedBookIndex !== null ? 'PUT' : 'POST';
+  const url = selectedBookIndex !== null ? `/BACKEND/edit-book.php?id=${books[selectedBookIndex].id}` : '/BACKEND/add-book.php';
+
+  fetch(url, {
+    method: method,
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(book)
+  })
+    .then(response => response.json())
+    .then(data => {
+      showMessage(data.message, !data.success);
+      if (data.success) {
+        closeModal();
+        fetchBooks();
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showMessage('An error occurred.', true);
+    });
 }
 
 function deleteBook(index) {
-  books.splice(index, 1);
-  renderBooks();
-  updateChart();
+  const confirmDelete = confirm("Are you sure you want to delete this book?");
+  if (!confirmDelete) return;
+
+  const bookId = books[index].id;
+
+  fetch('/BACKEND/delete-book.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ id: bookId })
+  })
+    .then(res => res.json())
+    .then(data => {
+      showMessage(data.message, !data.success);
+      if (data.success) fetchBooks();
+    })
+    .catch(err => {
+      console.error('Delete error:', err);
+      showMessage('Failed to delete book.', true);
+    });
+}
+
+function fetchBooks() {
+  fetch('/BACKEND/fetch-books.php')
+    .then(response => response.json())
+    .then(data => {
+      books = data;
+      renderBooks();
+      updateChart();
+      updateSummaryCounts();
+    })
+    .catch(err => {
+      console.error('Failed to fetch books:', err);
+      showMessage('Failed to load books.', true);
+    });
 }
 
 function renderBooks() {
-  let bookList = document.getElementById("book-list");
+  const bookList = document.getElementById("book-list");
   bookList.innerHTML = "";
   books.forEach((book, index) => {
     bookList.innerHTML += `
@@ -65,21 +128,17 @@ function renderBooks() {
   });
 }
 
-// Theme toggle
-if (toggleBtn) {
-  toggleBtn.addEventListener("click", () => {
-    body.classList.toggle("light-mode");
-    const isLight = body.classList.contains("light-mode");
+function updateSummaryCounts() {
+  document.getElementById("totalBooks").innerText = books.length;
+  document.getElementById("booksBorrowed").innerText = books.filter(b => b.quantity < 5).length;
 
-    // Update ChartJS colors to match theme
-    bookChart.options.plugins.legend.labels.color = isLight ? "#333333" : "#e0e0e0";
-    bookChart.options.scales.x.ticks.color = isLight ? "#333333" : "#e0e0e0";
-    bookChart.options.scales.y.ticks.color = isLight ? "#333333" : "#e0e0e0";
-    bookChart.update();
-  });
+  fetch('/BACKEND/user-count.php')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("totalUsers").innerText = data.total_users || 0;
+    });
 }
 
-// Chart.js chart
 let bookChart = new Chart(ctx, {
   type: "bar",
   data: {
@@ -121,5 +180,22 @@ function updateChart() {
   bookChart.update();
 }
 
-// Initial render
-renderBooks();
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    body.classList.toggle("light-mode");
+    const isLight = body.classList.contains("light-mode");
+    bookChart.options.plugins.legend.labels.color = isLight ? "#333333" : "#e0e0e0";
+    bookChart.options.scales.x.ticks.color = isLight ? "#333333" : "#e0e0e0";
+    bookChart.options.scales.y.ticks.color = isLight ? "#333333" : "#e0e0e0";
+    bookChart.update();
+  });
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById("bookModal");
+  if (event.target === modal) {
+    closeModal();
+  }
+};
+
+fetchBooks();

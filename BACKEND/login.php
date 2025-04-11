@@ -2,7 +2,7 @@
 session_start();
 require_once "db.php"; // Connect to the database
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
   $password = $_POST['password'];
   $role = $_POST['role'];
@@ -18,9 +18,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $_SESSION['role'] = $user['role'];
 
       if ($role === 'admin') {
-        header("Location: ../admin/dashboard.php");
+        header("Location: ../FRONTEND/admin.html");
       } else {
-        header("Location: ../user/dashboard.php");
+        header("Location: ../FRONTEND/user.html");
       }
       exit();
     } else {
