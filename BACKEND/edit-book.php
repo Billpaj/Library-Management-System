@@ -16,7 +16,7 @@ $id       = $_GET['id'] ?? null;
 $title    = trim($_PUT['title'] ?? '');
 $author   = trim($_PUT['author'] ?? '');
 $isbn     = trim($_PUT['isbn'] ?? '');
-genre     = trim($_PUT['genre'] ?? '');
+$genre    = trim($_PUT['genre'] ?? '');
 $quantity = trim($_PUT['quantity'] ?? '');
 
 if ($id && $title && $author && $isbn && $genre && is_numeric($quantity)) {
