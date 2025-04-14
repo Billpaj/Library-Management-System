@@ -1,30 +1,33 @@
 <?php
-require_once "db.php"; // Connect to the database
+require_once 'db.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Collect and sanitize form inputs
-  $username = htmlspecialchars(trim($_POST['username']));
-  $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $username = trim($_POST['username']);
+  $email = trim($_POST['email']);
+  $password = $_POST['password'];
   $role = $_POST['role'];
+  $phone = trim($_POST['phone']);
   $dob = $_POST['dob'];
-  $phone = htmlspecialchars(trim($_POST['phone']));
-  $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-  try {
-    // Prepare SQL insert statement
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, role, dob, phone, password) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$username, $email, $role, $dob, $phone, $password]);
+  if ($username && $email && $password && $role && $phone && $dob) {
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    echo "<script>alert('Account created successfully! Please log in.'); window.location.href = '../FRONTEND/login.html';</script>";
-    exit();
+    try {
+      $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, phone, dob) VALUES (?, ?, ?, ?, ?, ?)");
+      $stmt->execute([$username, $email, $hashedPassword, $role, $phone, $dob]);
 
-  } catch (PDOException $e) {
-    if ($e->getCode() == 23000) { // Duplicate email error
-      echo "<script>alert('This email is already registered. Please log in.'); window.location.href = '../FRONTEND/signup.html';</script>";
-    } else {
-      echo "<script>alert('Signup failed: " . $e->getMessage() . "'); window.location.href = '../FRONTEND/signup.html';</script>";
+      echo "<script>alert('Account created successfully!'); window.location.href = '../FRONTEND/Login.html';</script>";
+      exit();
+
+    } catch (PDOException $e) {
+      if ($e->getCode() === '23000') {
+        echo "<script>alert('Email already exists.'); window.location.href = '../FRONTEND/signup.html';</script>";
+      } else {
+        echo "<script>alert('Error: " . $e->getMessage() . "'); window.location.href = '../FRONTEND/signup.html';</script>";
+      }
     }
-    exit();
+  } else {
+    echo "<script>alert('All fields are required.'); window.location.href = '../FRONTEND/signup.html';</script>";
   }
 } else {
   header("Location: ../FRONTEND/signup.html");

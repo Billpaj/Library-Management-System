@@ -1,5 +1,12 @@
 <?php
-include '../BACKEND/session-check.php';
+session_start();
+
+// ✅ Admin-only access
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+  header("Location: ../FRONTEND/Login.html");
+  exit();
+}
+
 require_once '../BACKEND/db.php';
 
 // Fetch all books from the database
@@ -76,8 +83,8 @@ $books = $pdo->query("SELECT * FROM books ORDER BY id DESC")->fetchAll(PDO::FETC
                 <td><?= htmlspecialchars($book['genre']) ?></td>
                 <td><?= htmlspecialchars($book['quantity']) ?></td>
                 <td>
-                  <button class="btn btn-edit">Edit</button>
-                  <button class="btn btn-delete">Delete</button>
+                  <button class="btn btn-edit" onclick="openModal(<?= $book['id'] ?>)">Edit</button>
+                  <button class="btn btn-delete" onclick="deleteBook(<?= $book['id'] ?>)">Delete</button>
                 </td>
               </tr>
             <?php endforeach; ?>

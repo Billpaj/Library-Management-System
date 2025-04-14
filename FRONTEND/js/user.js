@@ -1,77 +1,59 @@
-// JavaScript to enable borrowing functionality and dynamic update of 'Books Borrowed'
+// JavaScript to enable borrowing functionality and dynamic update of 'Books Borrowed' from backend with toast notifications
 
 const borrowedBooks = [];
 
 window.addEventListener("DOMContentLoaded", () => {
   const bookGrid = document.getElementById("bookGrid");
-  const borrowButtons = document.querySelectorAll(".book-card button");
   const borrowedList = document.querySelector(".borrowed-list");
 
-  const books = [
-    {
-      title: "The Alchemist",
-      author: "Paulo Coelho",
-      img: "assets/images/book1.jpg"
-    },
-    {
-      title: "1984",
-      author: "George Orwell",
-      img: "assets/images/book.jpg"
-    },
-    {
-      title: "The Hobbit",
-      author: "J.R.R. Tolkien",
-      img: "assets/images/book3.jpg"
-    }
-    // Add more books here
-  ];
-
-  // Render book cards dynamically
-  if (bookGrid && books.length > 0) {
-    books.forEach(book => {
-      const card = document.createElement("div");
-      card.className = "book-card";
-
-      card.innerHTML = `
-        <img src="${book.img}" alt="${book.title}">
-        <h4>${book.title}</h4>
-        <p>${book.author}</p>
-        <button>Borrow</button>
-      `;
-
-      const button = card.querySelector("button");
-      button.addEventListener("click", () => {
-        if (!borrowedBooks.find((b) => b.title === book.title && b.author === book.author)) {
-          borrowedBooks.push(book);
-          updateBorrowedList();
-          button.innerText = "Borrowed";
-          button.disabled = true;
-          button.style.backgroundColor = "gray";
-        }
-      });
-
-      bookGrid.appendChild(card);
-    });
-  }
-
-  // Also attach click handlers to any pre-rendered book buttons
-  borrowButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const bookCard = button.closest(".book-card");
-      const title = bookCard.querySelector("h4").innerText;
-      const author = bookCard.querySelector("p").innerText;
-
-      if (!borrowedBooks.find((book) => book.title === title && book.author === author)) {
-        borrowedBooks.push({ title, author });
-        updateBorrowedList();
-        button.innerText = "Borrowed";
-        button.disabled = true;
-        button.style.backgroundColor = "gray";
+  fetch("../BACKEND/fetch-books.php")
+    .then(response => response.json())
+    .then(data => {
+      if (!Array.isArray(data)) {
+        showToast("Failed to load books.", "error");
+        return;
       }
-    });
-  });
+      data.forEach(book => {
+        const card = document.createElement("div");
+        card.className = "book-card";
+        card.innerHTML = `
+          <img src="assets/images/book.jpg" alt="${book.title}">
+          <h4>${book.title}</h4>
+          <p>${book.author}</p>
+          <button data-id="${book.id}">Borrow</button>
+        `;
 
-  // Initial display
+        const button = card.querySelector("button");
+        button.addEventListener("click", () => {
+          const bookId = button.getAttribute("data-id");
+
+          fetch("../BACKEND/borrow-book.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ book_id: bookId })
+          })
+            .then(res => res.json())
+            .then(res => {
+              showToast(res.message, res.success ? "success" : "error");
+              if (res.success) {
+                borrowedBooks.push(book);
+                updateBorrowedList();
+                button.innerText = "Borrowed";
+                button.disabled = true;
+                button.style.backgroundColor = "gray";
+              }
+            })
+            .catch(() => showToast("Something went wrong.", "error"));
+        });
+
+        bookGrid.appendChild(card);
+      });
+    })
+    .catch(error => {
+      console.error("Fetch error:", error);
+      showToast("Error fetching books.", "error");
+    });
+
   updateBorrowedList();
 });
 
@@ -82,7 +64,7 @@ function updateBorrowedList() {
   if (borrowedBooks.length === 0) {
     listContainer.innerHTML = "<p style='padding:10px;'>No books borrowed yet.</p>";
   } else {
-    borrowedBooks.forEach((book) => {
+    borrowedBooks.forEach(book => {
       const item = document.createElement("div");
       item.style.padding = "8px 15px";
       item.style.borderBottom = "1px solid #eee";
@@ -91,4 +73,34 @@ function updateBorrowedList() {
       listContainer.appendChild(item);
     });
   }
+}
+
+function showToast(message, type = "success") {
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerText = message;
+  toast.style.position = 'fixed';
+  toast.style.top = '20px';
+  toast.style.right = '20px';
+  toast.style.padding = '12px 20px';
+  toast.style.backgroundColor = type === 'success' ? '#2ecc71' : '#e74c3c';
+  toast.style.color = '#fff';
+  toast.style.borderRadius = '6px';
+  toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+  toast.style.zIndex = 1000;
+  toast.style.opacity = 0;
+  toast.style.transform = 'translateY(-10px)';
+  toast.style.transition = 'all 0.3s ease';
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = 1;
+    toast.style.transform = 'translateY(0)';
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = 0;
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }

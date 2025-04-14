@@ -1,5 +1,11 @@
 <?php
-include '../BACKEND/session-check.php'; // Ensure session protection
+session_start();
+
+// ✅ User-only access
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
+  header("Location: ../FRONTEND/Login.html");
+  exit();
+}
 ?>
 
 <!DOCTYPE html>

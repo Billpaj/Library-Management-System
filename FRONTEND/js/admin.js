@@ -1,4 +1,4 @@
-// admin.js with delete and edit functionality
+// admin.js with toast support for feedback messages
 
 let selectedBookIndex = null;
 let books = [];
@@ -21,19 +21,21 @@ function closeModal() {
   document.getElementById("bookModal").style.display = "none";
 }
 
-function showMessage(message, isError = false) {
-  const msgBox = document.createElement('div');
-  msgBox.innerText = message;
-  msgBox.style.position = 'fixed';
-  msgBox.style.top = '20px';
-  msgBox.style.right = '20px';
-  msgBox.style.padding = '10px 20px';
-  msgBox.style.borderRadius = '6px';
-  msgBox.style.color = '#fff';
-  msgBox.style.backgroundColor = isError ? '#e74c3c' : '#2ecc71';
-  msgBox.style.zIndex = 1000;
-  document.body.appendChild(msgBox);
-  setTimeout(() => msgBox.remove(), 3000);
+function showToast(message, type = "success") {
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerText = message;
+  toast.style.position = 'fixed';
+  toast.style.top = '20px';
+  toast.style.right = '20px';
+  toast.style.padding = '10px 20px';
+  toast.style.backgroundColor = type === 'success' ? '#2ecc71' : '#e74c3c';
+  toast.style.color = '#fff';
+  toast.style.borderRadius = '6px';
+  toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+  toast.style.zIndex = 1000;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }
 
 function saveBook() {
@@ -44,7 +46,7 @@ function saveBook() {
   const quantity = document.getElementById("book-quantity").value.trim();
 
   if (!title || !author || !isbn || !genre || !quantity || isNaN(quantity)) {
-    showMessage("Please fill out all fields correctly.", true);
+    showToast("Please fill out all fields correctly.", "error");
     return;
   }
 
@@ -59,7 +61,7 @@ function saveBook() {
   })
     .then(response => response.json())
     .then(data => {
-      showMessage(data.message, !data.success);
+      showToast(data.message, data.success ? "success" : "error");
       if (data.success) {
         closeModal();
         fetchBooks();
@@ -67,7 +69,7 @@ function saveBook() {
     })
     .catch(error => {
       console.error('Error:', error);
-      showMessage('An error occurred.', true);
+      showToast('An error occurred.', "error");
     });
 }
 
@@ -84,12 +86,12 @@ function deleteBook(index) {
   })
     .then(res => res.json())
     .then(data => {
-      showMessage(data.message, !data.success);
+      showToast(data.message, data.success ? "success" : "error");
       if (data.success) fetchBooks();
     })
     .catch(err => {
       console.error('Delete error:', err);
-      showMessage('Failed to delete book.', true);
+      showToast('Failed to delete book.', "error");
     });
 }
 
@@ -104,7 +106,7 @@ function fetchBooks() {
     })
     .catch(err => {
       console.error('Failed to fetch books:', err);
-      showMessage('Failed to load books.', true);
+      showToast('Failed to load books.', "error");
     });
 }
 

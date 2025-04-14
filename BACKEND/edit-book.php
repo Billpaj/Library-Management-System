@@ -1,37 +1,33 @@
 <?php
+session_start();
 require_once 'db.php';
+
 header('Content-Type: application/json');
 
-// Allow only POST requests
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405); // Method Not Allowed
-    echo json_encode(["success" => false, "message" => "Invalid request method."]);
-    exit();
+// 🔐 Admin-only access
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+  echo json_encode(["success" => false, "message" => "Unauthorized access."]);
+  exit();
 }
 
-// Sanitize and validate inputs
-$title    = trim($_POST['title'] ?? '');
-$author   = trim($_POST['author'] ?? '');
-$isbn     = trim($_POST['isbn'] ?? '');
-$genre    = trim($_POST['genre'] ?? '');
-$quantity = trim($_POST['quantity'] ?? '');
+parse_str(file_get_contents("php://input"), $_PUT);
 
-if (
-    $title === '' || $author === '' || $isbn === '' || $genre === '' ||
-    !is_numeric($quantity) || (int)$quantity < 0
-) {
-    http_response_code(422); // Unprocessable Entity
-    echo json_encode(["success" => false, "message" => "Please fill out all fields correctly."]);
-    exit();
-}
+$id       = $_GET['id'] ?? null;
+$title    = trim($_PUT['title'] ?? '');
+$author   = trim($_PUT['author'] ?? '');
+$isbn     = trim($_PUT['isbn'] ?? '');
+genre     = trim($_PUT['genre'] ?? '');
+$quantity = trim($_PUT['quantity'] ?? '');
 
-try {
-    $stmt = $pdo->prepare("INSERT INTO books (title, author, isbn, genre, quantity) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$title, $author, $isbn, $genre, (int)$quantity]);
+if ($id && $title && $author && $isbn && $genre && is_numeric($quantity)) {
+  try {
+    $stmt = $pdo->prepare("UPDATE books SET title = ?, author = ?, isbn = ?, genre = ?, quantity = ? WHERE id = ?");
+    $stmt->execute([$title, $author, $isbn, $genre, (int)$quantity, $id]);
 
-    http_response_code(201); // Created
-    echo json_encode(["success" => true, "message" => "Book added successfully."]);
-} catch (PDOException $e) {
-    http_response_code(500); // Internal Server Error
+    echo json_encode(["success" => true, "message" => "Book updated successfully."]);
+  } catch (PDOException $e) {
     echo json_encode(["success" => false, "message" => "Database error: " . $e->getMessage()]);
+  }
+} else {
+  echo json_encode(["success" => false, "message" => "Missing or invalid fields."]);
 }
