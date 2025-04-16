@@ -5,23 +5,25 @@ window.addEventListener("DOMContentLoaded", () => {
   const bookGrid = document.getElementById("bookGrid");
 
   fetch("../BACKEND/fetch-books.php")
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       const books = Array.isArray(data.books) ? data.books : data; // fallback
       if (!Array.isArray(books)) {
         showToast("Failed to load books.", "error");
         return;
       }
 
-      books.forEach(book => {
+      books.forEach((book) => {
         const card = document.createElement("div");
         card.className = "book-card";
+        const imageUrl = book.image ? book.image : "assets/images/book.jpg";
+
         card.innerHTML = `
-          <img src="assets/images/book.jpg" alt="${book.title}">
-          <h4>${book.title}</h4>
-          <p>${book.author}</p>
-          <button data-id="${book.id}">Borrow</button>
-        `;
+  <img src="${imageUrl}" alt="${book.title}">
+  <h4>${book.title}</h4>
+  <p>${book.author}</p>
+  <button data-id="${book.id}">Borrow</button>
+`;
 
         const button = card.querySelector("button");
         button.addEventListener("click", () => {
@@ -30,10 +32,10 @@ window.addEventListener("DOMContentLoaded", () => {
           fetch("../BACKEND/borrow-book.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({ book_id: bookId })
+            body: new URLSearchParams({ book_id: bookId }),
           })
-            .then(res => res.json())
-            .then(res => {
+            .then((res) => res.json())
+            .then((res) => {
               showToast(res.message, res.success ? "success" : "error");
               if (res.success) {
                 button.innerText = "Borrowed";
@@ -48,7 +50,7 @@ window.addEventListener("DOMContentLoaded", () => {
         bookGrid.appendChild(card);
       });
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Fetch error:", error);
       showToast("Error fetching books.", "error");
     });
@@ -59,21 +61,24 @@ window.addEventListener("DOMContentLoaded", () => {
 // 🧾 Load and render borrowed books
 function loadBorrowedBooks() {
   fetch("../BACKEND/get-borrowed.php", {
-    credentials: "include"
+    credentials: "include",
   })
-    .then(res => res.json())
-    .then(data => {
-      const listContainer = document.getElementById("borrowedList") || document.querySelector(".borrowed-list");
+    .then((res) => res.json())
+    .then((data) => {
+      const listContainer =
+        document.getElementById("borrowedList") ||
+        document.querySelector(".borrowed-list");
       listContainer.innerHTML = "";
 
       if (!data.length) {
-        listContainer.innerHTML = "<p style='padding:10px;'>No books borrowed yet.</p>";
+        listContainer.innerHTML =
+          "<p style='padding:10px;'>No books borrowed yet.</p>";
         const countEl = document.getElementById("borrowedCount");
         if (countEl) countEl.innerText = "0";
         return;
       }
 
-      data.forEach(book => {
+      data.forEach((book) => {
         const item = document.createElement("div");
         item.className = "borrowed-entry";
         item.style.padding = "8px 15px";
@@ -97,17 +102,17 @@ function loadBorrowedBooks() {
       if (countEl) countEl.innerText = data.length;
 
       const returnBtns = listContainer.querySelectorAll(".return-btn");
-      returnBtns.forEach(btn => {
+      returnBtns.forEach((btn) => {
         btn.addEventListener("click", function () {
           const bookId = this.getAttribute("data-id");
 
           fetch("../BACKEND/return-book.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `book_id=${bookId}`
+            body: `book_id=${bookId}`,
           })
-            .then(res => res.json())
-            .then(res => {
+            .then((res) => res.json())
+            .then((res) => {
               showToast(res.message, res.success ? "success" : "error");
               if (res.success) {
                 loadBorrowedBooks(); // Refresh after return
@@ -126,28 +131,28 @@ function showToast(message, type = "success") {
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
   toast.innerText = message;
-  toast.style.position = 'fixed';
-  toast.style.top = '20px';
-  toast.style.right = '20px';
-  toast.style.padding = '12px 20px';
-  toast.style.backgroundColor = type === 'success' ? '#2ecc71' : '#e74c3c';
-  toast.style.color = '#fff';
-  toast.style.borderRadius = '6px';
-  toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+  toast.style.position = "fixed";
+  toast.style.top = "20px";
+  toast.style.right = "20px";
+  toast.style.padding = "12px 20px";
+  toast.style.backgroundColor = type === "success" ? "#2ecc71" : "#e74c3c";
+  toast.style.color = "#fff";
+  toast.style.borderRadius = "6px";
+  toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
   toast.style.zIndex = 1000;
   toast.style.opacity = 0;
-  toast.style.transform = 'translateY(-10px)';
-  toast.style.transition = 'all 0.3s ease';
+  toast.style.transform = "translateY(-10px)";
+  toast.style.transition = "all 0.3s ease";
   document.body.appendChild(toast);
 
   requestAnimationFrame(() => {
     toast.style.opacity = 1;
-    toast.style.transform = 'translateY(0)';
+    toast.style.transform = "translateY(0)";
   });
 
   setTimeout(() => {
     toast.style.opacity = 0;
-    toast.style.transform = 'translateY(-10px)';
+    toast.style.transform = "translateY(-10px)";
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }

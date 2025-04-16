@@ -1,9 +1,12 @@
+// ✅ Cleaned & Merged admin.js
+
 let selectedBookIndex = null;
 let books = [];
 
 const body = document.body;
 const toggleBtn = document.getElementById("toggle-theme");
 const ctx = document.getElementById("bookChart")?.getContext("2d");
+const backBtn = document.getElementById("backToDashboard");
 
 function openModal(index = null) {
   selectedBookIndex = index;
@@ -12,7 +15,7 @@ function openModal(index = null) {
     document.getElementById(`book-${field}`).value =
       index !== null ? books[index][field] : "";
   });
-  document.getElementById("book-image").value = ""; // clear file input
+  document.getElementById("book-image").value = "";
   document.getElementById("modal-title").innerText =
     index !== null ? "Edit Book" : "Add New Book";
   document.getElementById("bookModal").style.display = "flex";
@@ -122,19 +125,35 @@ function fetchBooks() {
     .catch((err) => {
       console.error("Fetch error:", err);
       showMessage("Failed to load books.", true);
-<<<<<<< HEAD
-=======
     });
 }
 
-// 🔄 Toggle to Users View
-document.getElementById("usersLink")?.addEventListener("click", () => {
+// ✅ Step 2: Handle "Manage Books" click to show dashboard
+const manageBooksLink = document.getElementById("manageBooksLink");
+manageBooksLink?.addEventListener("click", () => {
+  // Hide users section
+  document.getElementById("usersSection").style.display = "none";
+
+  // Show dashboard and book sections
+  document.querySelector(".summary-cards").style.display = "flex";
+  document.querySelector(".charts").style.display = "block";
+  document.querySelector(".table-section").style.display = "block";
+
+  // Hide back button if visible
+  const backBtn = document.getElementById("backToDashboard");
+  if (backBtn) backBtn.style.display = "none";
+});
+
+
+// ✅ Users view handler
+const usersLink = document.getElementById("usersLink");
+usersLink?.addEventListener("click", () => {
   document.querySelector(".charts").style.display = "none";
   document.querySelector(".summary-cards").style.display = "none";
   document.querySelectorAll(".table-section").forEach(el => el.style.display = "none");
 
   document.getElementById("usersSection").style.display = "block";
-  document.getElementById("backToDashboard").style.display = "inline-block"; // ensure visible
+  backBtn.style.display = "inline-block";
 
   fetch("../BACKEND/get-users.php", { credentials: "include" })
     .then(res => res.json())
@@ -153,10 +172,10 @@ document.getElementById("usersLink")?.addEventListener("click", () => {
           </tr>
         `;
       });
-      
+
       document.getElementById("totalUsersCount").innerText = users.length;
 
-      // 🔍 Add search functionality
+      // Search input
       document.getElementById("userSearchInput")?.addEventListener("input", function () {
         const query = this.value.toLowerCase();
         document.querySelectorAll("#user-list tr").forEach(row => {
@@ -171,13 +190,13 @@ document.getElementById("usersLink")?.addEventListener("click", () => {
     });
 });
 
-// Back to Dashboard button (moved outside)
-document.getElementById("backToDashboard")?.addEventListener("click", () => {
+// ✅ Back to Dashboard
+backBtn?.addEventListener("click", () => {
   document.getElementById("usersSection").style.display = "none";
   document.querySelector(".summary-cards").style.display = "flex";
   document.querySelector(".charts").style.display = "block";
   document.querySelector(".table-section").style.display = "block";
-  document.getElementById("backToDashboard").style.display = "none";
+  backBtn.style.display = "none";
 });
 
 function deleteUser(userId) {
@@ -192,56 +211,13 @@ function deleteUser(userId) {
     .then(res => res.json())
     .then(data => {
       showMessage(data.message, !data.success);
-      if (data.success) usersLink.click(); // reload users view
+      if (data.success) usersLink.click();
     })
     .catch(err => {
       console.error("Delete user error:", err);
       showMessage("Failed to delete user.", true);
->>>>>>> 8695b81b2f6d45c44cb492771501f503342db4fc
     });
 }
-
-// 🔄 Toggle to Users View
-document.getElementById("usersLink")?.addEventListener("click", () => {
-  document.querySelector(".charts").style.display = "none";
-  document.querySelector(".summary-cards").style.display = "none";
-
-  // ✅ Hide all .table-section elements
-  document.querySelectorAll(".table-section").forEach(section => {
-    section.style.display = "none";
-  });
-
-  // ✅ Show users table
-  document.getElementById("usersSection").style.display = "block";
-
-  fetch("../BACKEND/get-users.php", {
-    credentials: "include"
-  })
-    .then(res => res.json())
-    .then(users => {
-      const userList = document.getElementById("user-list");
-      userList.innerHTML = "";
-
-      users.forEach(user => {
-        userList.innerHTML += `
-          <tr>
-            <td>${user.id}</td>
-            <td>${user.username}</td>
-            <td>${user.email}</td>
-            <td>${user.role}</td>
-          </tr>
-        `;
-      });
-
-      document.getElementById("totalUsersCount").innerText = users.length;
-    })
-    .catch(error => {
-      console.error("Failed to load users:", error);
-      showMessage("Unable to load users.", true);
-    });
-});
-
-
 
 function renderBooks() {
   const bookList = document.getElementById("book-list");
@@ -266,19 +242,17 @@ function renderBooks() {
 
 function updateSummaryCounts(totalBooks) {
   document.getElementById("totalBooks").innerText = totalBooks;
-  document.getElementById("booksBorrowed").innerText = books.filter(
-    (b) => b.quantity < 5
-  ).length;
+  document.getElementById("booksBorrowed").innerText = books.filter(b => b.quantity < 5).length;
 
   fetch("../BACKEND/user-count.php")
-    .then((res) => res.json())
-    .then((data) => {
+    .then(res => res.json())
+    .then(data => {
       document.getElementById("totalUsers").innerText = data.total_users || 0;
     });
 
   fetch("../BACKEND/borrowed-count.php")
-    .then((res) => res.json())
-    .then((data) => {
+    .then(res => res.json())
+    .then(data => {
       document.getElementById("booksBorrowed").innerText = data.count || 0;
     });
 }
@@ -322,9 +296,7 @@ let bookChart = new Chart(ctx, {
 
 function updateChart() {
   bookChart.data.labels = books.map((book) => book.title);
-  bookChart.data.datasets[0].data = books.map(
-    (book) => parseInt(book.quantity) || 0
-  );
+  bookChart.data.datasets[0].data = books.map((book) => parseInt(book.quantity) || 0);
   bookChart.update();
 }
 
@@ -332,9 +304,7 @@ if (toggleBtn) {
   toggleBtn.addEventListener("click", () => {
     body.classList.toggle("light-mode");
     const isLight = body.classList.contains("light-mode");
-    bookChart.options.plugins.legend.labels.color = isLight
-      ? "#333333"
-      : "#e0e0e0";
+    bookChart.options.plugins.legend.labels.color = isLight ? "#333333" : "#e0e0e0";
     bookChart.options.scales.x.ticks.color = isLight ? "#333333" : "#e0e0e0";
     bookChart.options.scales.y.ticks.color = isLight ? "#333333" : "#e0e0e0";
     bookChart.update();

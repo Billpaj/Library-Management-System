@@ -18,10 +18,10 @@
       <nav>
         <ul>
           <li class="active" id="dashboardLink"><i class="fas fa-chart-line"></i> Dashboard</li>
-          <li><i class="fas fa-book"></i> Manage Books</li>
+          <li id="manageBooksLink"><i class="fas fa-book"></i> Manage Books</li>
           <li id="usersLink"><i class="fas fa-users"></i> Users</li>
           <li><i class="fas fa-cogs"></i> Settings</li>
-          <li><i class="fas fa-sign-out-alt"></i> <a href="logout.php">Logout</a></li>
+          <li><i class="fas fa-sign-out-alt"></i> <a href="../BACKEND/logout.php">Logout</a></li>
         </ul>
         <button id="toggle-theme" class="btn btn-toggle">Toggle Theme</button>
       </nav>
@@ -37,31 +37,12 @@
         </button>
       </header>
 
-      <!-- User list-->
-       <!-- Users Section (hidden by default) -->
-<section id="usersSection" class="table-section" style="display: none;">
-  <h2>All Users</h2>
-  <p><strong>Total Users:</strong> <span id="totalUsersCount">0</span></p>
-  <table class="book-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Role</th>
-      </tr>
-    </thead>
-    <tbody id="user-list"></tbody>
-  </table>
-</section>
-
-
       <!-- 🔙 Back to Dashboard Button -->
       <button id="backToDashboard" class="btn btn-close" style="margin-bottom: 15px; display: none;">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
       </button>
 
-      <!-- 👤 Users Section (Hidden by Default) -->
+      <!-- 👤 Users Section -->
       <section id="usersSection" class="table-section" style="display: none;">
         <h2>All Users</h2>
         <p><strong>Total Users:</strong> <span id="totalUsersCount">0</span></p>
@@ -126,15 +107,16 @@
     </main>
   </div>
 
-  <!-- Modal -->
+  <!-- 📘 Modal -->
   <div class="modal" id="bookModal">
     <div class="modal-content">
       <h2 id="modal-title">Add New Book</h2>
-      <input type="text" id="book-title" placeholder="Book Title">
-      <input type="text" id="book-author" placeholder="Author">
-      <input type="text" id="book-isbn" placeholder="ISBN">
-      <input type="text" id="book-genre" placeholder="Genre">
-      <input type="number" id="book-quantity" placeholder="Quantity">
+      <input type="text" id="book-title" placeholder="Book Title" />
+      <input type="text" id="book-author" placeholder="Author" />
+      <input type="text" id="book-isbn" placeholder="ISBN" />
+      <input type="text" id="book-genre" placeholder="Genre" />
+      <input type="number" id="book-quantity" placeholder="Quantity" />
+      <input type="file" id="book-image" accept="image/*" />
       <div class="modal-actions">
         <button class="btn btn-close" onclick="closeModal()">Cancel</button>
         <button class="btn btn-add" onclick="saveBook()">Save</button>
