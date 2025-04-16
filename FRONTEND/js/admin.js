@@ -122,6 +122,82 @@ function fetchBooks() {
     .catch((err) => {
       console.error("Fetch error:", err);
       showMessage("Failed to load books.", true);
+<<<<<<< HEAD
+=======
+    });
+}
+
+// 🔄 Toggle to Users View
+document.getElementById("usersLink")?.addEventListener("click", () => {
+  document.querySelector(".charts").style.display = "none";
+  document.querySelector(".summary-cards").style.display = "none";
+  document.querySelectorAll(".table-section").forEach(el => el.style.display = "none");
+
+  document.getElementById("usersSection").style.display = "block";
+  document.getElementById("backToDashboard").style.display = "inline-block"; // ensure visible
+
+  fetch("../BACKEND/get-users.php", { credentials: "include" })
+    .then(res => res.json())
+    .then(users => {
+      const userList = document.getElementById("user-list");
+      userList.innerHTML = "";
+
+      users.forEach(user => {
+        userList.innerHTML += `
+          <tr>
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.role}</td>
+            <td><button onclick="deleteUser(${user.id})">Delete</button></td>
+          </tr>
+        `;
+      });
+      
+      document.getElementById("totalUsersCount").innerText = users.length;
+
+      // 🔍 Add search functionality
+      document.getElementById("userSearchInput")?.addEventListener("input", function () {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll("#user-list tr").forEach(row => {
+          const rowText = row.innerText.toLowerCase();
+          row.style.display = rowText.includes(query) ? "" : "none";
+        });
+      });
+    })
+    .catch(error => {
+      console.error("Failed to load users:", error);
+      showMessage("Unable to load users.", true);
+    });
+});
+
+// Back to Dashboard button (moved outside)
+document.getElementById("backToDashboard")?.addEventListener("click", () => {
+  document.getElementById("usersSection").style.display = "none";
+  document.querySelector(".summary-cards").style.display = "flex";
+  document.querySelector(".charts").style.display = "block";
+  document.querySelector(".table-section").style.display = "block";
+  document.getElementById("backToDashboard").style.display = "none";
+});
+
+function deleteUser(userId) {
+  if (!confirm("Are you sure you want to delete this user?")) return;
+
+  fetch("../BACKEND/delete-user.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ id: userId }),
+    credentials: "include"
+  })
+    .then(res => res.json())
+    .then(data => {
+      showMessage(data.message, !data.success);
+      if (data.success) usersLink.click(); // reload users view
+    })
+    .catch(err => {
+      console.error("Delete user error:", err);
+      showMessage("Failed to delete user.", true);
+>>>>>>> 8695b81b2f6d45c44cb492771501f503342db4fc
     });
 }
 
