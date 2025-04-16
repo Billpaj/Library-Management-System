@@ -13,10 +13,13 @@ if (ini_get("session.use_cookies")) {
   );
 }
 
+//Unset the session
+session_unset();
+
 // Destroy the session
 session_destroy();
 
 // Redirect to login page
-header("Location: login.html");
+header("Location:../FRONTEND/login.html");
 exit();
 ?>
