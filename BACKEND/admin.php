@@ -7,7 +7,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
   exit();
 }
 
-require_once '../BACKEND/db.php';
+require_once '/BACKEND/db.php';
 
 // Fetch all books from the database
 $books = $pdo->query("SELECT * FROM books ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
@@ -20,7 +20,7 @@ $books = $pdo->query("SELECT * FROM books ORDER BY id DESC")->fetchAll(PDO::FETC
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard - Library System</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="/BACKEND/css/admin.css">
+  <link rel="stylesheet" href="/FRONTEND/css/admin.css">
 </head>
 <body>
   <div class="admin-container">

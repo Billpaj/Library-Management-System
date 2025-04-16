@@ -1,36 +1,53 @@
 <?php
 require_once 'db.php';
+session_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $username = trim($_POST['username']);
-  $email = trim($_POST['email']);
-  $password = $_POST['password'];
-  $role = $_POST['role'];
-  $phone = trim($_POST['phone']);
-  $dob = $_POST['dob'];
+header('Content-Type: application/json');
 
-  if ($username && $email && $password && $role && $phone && $dob) {
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    try {
-      $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, phone, dob) VALUES (?, ?, ?, ?, ?, ?)");
-      $stmt->execute([$username, $email, $hashedPassword, $role, $phone, $dob]);
-
-      echo "<script>alert('Account created successfully!'); window.location.href = '../FRONTEND/Login.html';</script>";
-      exit();
-
-    } catch (PDOException $e) {
-      if ($e->getCode() === '23000') {
-        echo "<script>alert('Email already exists.'); window.location.href = '../FRONTEND/signup.html';</script>";
-      } else {
-        echo "<script>alert('Error: " . $e->getMessage() . "'); window.location.href = '../FRONTEND/signup.html';</script>";
-      }
-    }
-  } else {
-    echo "<script>alert('All fields are required.'); window.location.href = '../FRONTEND/signup.html';</script>";
-  }
-} else {
-  header("Location: ../FRONTEND/signup.html");
+// ✅ Block invalid methods
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  echo json_encode(["success" => false, "message" => "Invalid request method."]);
   exit();
 }
-?>
+
+// ✅ Input sanitization
+function sanitize($data) {
+  return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+}
+
+// ✅ Get and clean form input
+$username = sanitize($_POST['username'] ?? '');
+$email    = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
+$password = $_POST['password'] ?? '';
+$role     = sanitize($_POST['role'] ?? '');
+$dob      = $_POST['dob'] ?? '';
+$phone    = sanitize($_POST['phone'] ?? '');
+
+// ✅ Validate all fields
+if (!$username || !$email || !$password || !$role || !$dob || !$phone) {
+  echo json_encode(["success" => false, "message" => "Please fill in all required fields."]);
+  exit();
+}
+
+try {
+  // ✅ Check for duplicate email
+  $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+  $stmt->execute([$email]);
+
+  if ($stmt->fetch()) {
+    echo json_encode(["success" => false, "message" => "Email already registered."]);
+    exit();
+  }
+
+  // ✅ Hash password
+  $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+  // ✅ Save to database
+  $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, dob, phone) VALUES (?, ?, ?, ?, ?, ?)");
+  $stmt->execute([$username, $email, $hashedPassword, $role, $dob, $phone]);
+
+  echo json_encode(["success" => true, "message" => "Account created successfully."]);
+
+} catch (PDOException $e) {
+  echo json_encode(["success" => false, "message" => "Database error: " . $e->getMessage()]);
+}

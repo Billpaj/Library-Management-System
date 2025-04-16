@@ -1,19 +1,19 @@
-// JavaScript to enable borrowing functionality and dynamic update of 'Books Borrowed' from backend with toast notifications
-
 const borrowedBooks = [];
 
+// 📦 Fetch available books and render
 window.addEventListener("DOMContentLoaded", () => {
   const bookGrid = document.getElementById("bookGrid");
-  const borrowedList = document.querySelector(".borrowed-list");
 
   fetch("../BACKEND/fetch-books.php")
     .then(response => response.json())
     .then(data => {
-      if (!Array.isArray(data)) {
+      const books = Array.isArray(data.books) ? data.books : data; // fallback
+      if (!Array.isArray(books)) {
         showToast("Failed to load books.", "error");
         return;
       }
-      data.forEach(book => {
+
+      books.forEach(book => {
         const card = document.createElement("div");
         card.className = "book-card";
         card.innerHTML = `
@@ -36,11 +36,10 @@ window.addEventListener("DOMContentLoaded", () => {
             .then(res => {
               showToast(res.message, res.success ? "success" : "error");
               if (res.success) {
-                borrowedBooks.push(book);
-                updateBorrowedList();
                 button.innerText = "Borrowed";
                 button.disabled = true;
                 button.style.backgroundColor = "gray";
+                loadBorrowedBooks(); // refresh list
               }
             })
             .catch(() => showToast("Something went wrong.", "error"));
@@ -54,27 +53,75 @@ window.addEventListener("DOMContentLoaded", () => {
       showToast("Error fetching books.", "error");
     });
 
-  updateBorrowedList();
+  loadBorrowedBooks(); // Load borrowed list on load
 });
 
-function updateBorrowedList() {
-  const listContainer = document.querySelector(".borrowed-list");
-  listContainer.innerHTML = "";
+// 🧾 Load and render borrowed books
+function loadBorrowedBooks() {
+  fetch("../BACKEND/get-borrowed.php", {
+    credentials: "include"
+  })
+    .then(res => res.json())
+    .then(data => {
+      const listContainer = document.getElementById("borrowedList") || document.querySelector(".borrowed-list");
+      listContainer.innerHTML = "";
 
-  if (borrowedBooks.length === 0) {
-    listContainer.innerHTML = "<p style='padding:10px;'>No books borrowed yet.</p>";
-  } else {
-    borrowedBooks.forEach(book => {
-      const item = document.createElement("div");
-      item.style.padding = "8px 15px";
-      item.style.borderBottom = "1px solid #eee";
-      item.style.fontSize = "14px";
-      item.textContent = `${book.title} - ${book.author}`;
-      listContainer.appendChild(item);
+      if (!data.length) {
+        listContainer.innerHTML = "<p style='padding:10px;'>No books borrowed yet.</p>";
+        const countEl = document.getElementById("borrowedCount");
+        if (countEl) countEl.innerText = "0";
+        return;
+      }
+
+      data.forEach(book => {
+        const item = document.createElement("div");
+        item.className = "borrowed-entry";
+        item.style.padding = "8px 15px";
+        item.style.borderBottom = "1px solid #eee";
+        item.style.marginBottom = "5px";
+        item.style.display = "flex";
+        item.style.flexDirection = "column";
+
+        item.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span><strong>${book.title}</strong> - ${book.author}</span>
+            <button class="return-btn" data-id="${book.id}">Return</button>
+          </div>
+          <small style="color:#555; font-size:13px;">📆 Borrowed: ${book.borrow_date} | ⏳ Due: ${book.due_date}</small>
+        `;
+
+        listContainer.appendChild(item);
+      });
+
+      const countEl = document.getElementById("borrowedCount");
+      if (countEl) countEl.innerText = data.length;
+
+      const returnBtns = listContainer.querySelectorAll(".return-btn");
+      returnBtns.forEach(btn => {
+        btn.addEventListener("click", function () {
+          const bookId = this.getAttribute("data-id");
+
+          fetch("../BACKEND/return-book.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `book_id=${bookId}`
+          })
+            .then(res => res.json())
+            .then(res => {
+              showToast(res.message, res.success ? "success" : "error");
+              if (res.success) {
+                loadBorrowedBooks(); // Refresh after return
+              }
+            });
+        });
+      });
+    })
+    .catch(() => {
+      showToast("Could not load borrowed books.", "error");
     });
-  }
 }
 
+// ✅ Toast message system
 function showToast(message, type = "success") {
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;

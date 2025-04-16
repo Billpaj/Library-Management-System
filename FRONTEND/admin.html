@@ -19,9 +19,9 @@
         <ul>
           <li class="active"><i class="fas fa-chart-line"></i> Dashboard</li>
           <li><i class="fas fa-book"></i> Manage Books</li>
-          <li><i class="fas fa-users"></i> Users</li>
+          <li id="usersLink"><i class="fas fa-users"></i> Users</li>
           <li><i class="fas fa-cogs"></i> Settings</li>
-          <li><i class="fas fa-sign-out-alt"></i> <a href="logout.php">Logout</a></li>
+          <li><i class="fas fa-sign-out-alt"></i> <a href="../BACKEND/logout.php" class ="logout-btn">Logout</a></li>
         </ul>
         <button id="toggle-theme" class="btn btn-toggle">Toggle Theme</button>
       </nav>
@@ -33,6 +33,25 @@
         <h1>Manage Books</h1>
         <button class="btn btn-add" onclick="openModal()"><i class="fas fa-plus"></i> Add New Book</button>
       </header>
+
+      <!-- User list-->
+       <!-- Users Section (hidden by default) -->
+<section id="usersSection" class="table-section" style="display: none;">
+  <h2>All Users</h2>
+  <p><strong>Total Users:</strong> <span id="totalUsersCount">0</span></p>
+  <table class="book-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody id="user-list"></tbody>
+  </table>
+</section>
+
 
       <!-- Summary Cards -->
       <section class="summary-cards">
@@ -80,22 +99,26 @@
   </div>
 
   <!-- Modal -->
-  <div class="modal" id="bookModal">
+  <div id="bookModal" class="modal">
     <div class="modal-content">
       <h2 id="modal-title">Add New Book</h2>
-      <input type="text" id="book-title" placeholder="Book Title">
-      <input type="text" id="book-author" placeholder="Author">
-      <input type="text" id="book-isbn" placeholder="ISBN">
-      <input type="text" id="book-genre" placeholder="Genre">
-      <input type="number" id="book-quantity" placeholder="Quantity">
+      <input type="text" id="book-title" placeholder="Title" required/>
+      <input type="text" id="book-author" placeholder="Author" />
+      <input type="text" id="book-isbn" placeholder="ISBN" />
+      <input type="text" id="book-genre" placeholder="Genre" />
+      <input type="number" id="book-quantity" placeholder="Quantity" />
+      
+      <!-- 📌 Insert this below quantity -->
+      <input type="file" id="book-image" accept="image/*" />
+  
       <div class="modal-actions">
-        <button class="btn btn-add" onclick="saveBook()">Save</button>
         <button class="btn btn-close" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-add" onclick="saveBook()">Save</button>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/admin.js"> defer</script>
+  <script src="js/admin.js" defer></script>
 </body>
 </html>

@@ -1,38 +1,44 @@
 <?php
+require_once 'db.php';
 session_start();
-require_once "db.php"; // Connect to the database
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-  $password = $_POST['password'];
-  $role = $_POST['role'];
+header('Content-Type: application/json');
 
-  try {
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
-    $stmt->execute([$email, $role]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($user && password_verify($password, $user['password'])) {
-      $_SESSION['user_id'] = $user['id'];
-      $_SESSION['username'] = $user['username'];
-      $_SESSION['role'] = $user['role'];
-
-      if ($role === 'admin') {
-        header("Location: ../FRONTEND/admin.html");
-      } else {
-        header("Location: ../FRONTEND/user.html");
-      }
-      exit();
-    } else {
-      echo "<script>alert('Invalid credentials. Please try again.'); window.location.href = '../FRONTEND/login.html';</script>";
-      exit();
-    }
-  } catch (PDOException $e) {
-    echo "<script>alert('Login error: " . $e->getMessage() . "'); window.location.href = '../FRONTEND/login.html';</script>";
-    exit();
-  }
-} else {
-  header("Location: ../FRONTEND/login.html");
+// ✅ Block any non-POST requests
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  echo json_encode(["success" => false, "message" => "Invalid request method."]);
   exit();
 }
-?>
+
+// ✅ Sanitize helper
+function sanitize($data) {
+  return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+}
+
+$email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
+$password = $_POST['password'] ?? '';
+$role = sanitize($_POST['role'] ?? '');
+
+// ✅ Check for required fields
+if (!$email || !$password || !$role) {
+  echo json_encode(["success" => false, "message" => "All fields are required."]);
+  exit();
+}
+
+try {
+  $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
+  $stmt->execute([$email, $role]);
+  $user = $stmt->fetch();
+
+  if ($user && password_verify($password, $user['password'])) {
+    // Make sure these are set in your login.php
+$_SESSION['user_id'] = $user['id'];
+$_SESSION['role'] = $user['role'];
+$_SESSION['username'] = $user['username'];
+    echo json_encode(["success" => true, "redirect" => $role === 'admin' ? 'admin.html' : 'user.html']);
+  } else {
+    echo json_encode(["success" => false, "message" => "Invalid credentials."]);
+  }
+} catch (PDOException $e) {
+  echo json_encode(["success" => false, "message" => "Database error: " . $e->getMessage()]);
+}

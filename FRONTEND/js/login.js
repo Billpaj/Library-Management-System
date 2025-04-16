@@ -1,9 +1,10 @@
-// Enhanced login.js with password toggle, validation, local storage, remember me, toggle form view, and forgot password logic
+// Enhanced login.js with password toggle, validation, local storage, remember me, toast, and forgot password logic
 
 const passwordInput = document.querySelector("input[name='password']");
 const emailInput = document.querySelector("input[name='email']");
 const roleSelect = document.querySelector("select[name='role']");
-const loginForm = document.querySelector(".login-form");
+const loginForm = document.getElementById("login-form");
+
 
 // Password visibility toggle
 const toggleButton = document.createElement("span");
@@ -37,16 +38,17 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Form validation & localStorage handling
+// Form validation, fetch login, and localStorage handling
 if (loginForm) {
   loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
     const role = roleSelect.value;
     const remember = document.getElementById("rememberMe")?.checked;
 
     if (!email || !password || !role) {
-      e.preventDefault();
       showToast("Please fill in all fields.");
       return;
     }
@@ -58,6 +60,24 @@ if (loginForm) {
       localStorage.removeItem("rememberedEmail");
       localStorage.removeItem("rememberedRole");
     }
+
+    fetch("../BACKEND/login.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&role=${encodeURIComponent(role)}`
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          showToast(data.message || "Login failed");
+        }
+      })
+      .catch(err => {
+        console.error("Login error:", err);
+        showToast("An error occurred. Please try again.");
+      });
   });
 }
 
