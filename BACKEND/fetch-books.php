@@ -5,6 +5,13 @@ header('Content-Type: application/json');
 
 $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 10;
 $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
+if ($limit > 0) {
+  $stmt = $pdo->prepare("SELECT * FROM books ORDER BY id DESC LIMIT ? OFFSET ?");
+  $stmt->bindParam(1, $limit, PDO::PARAM_INT);
+  $stmt->bindParam(2, $offset, PDO::PARAM_INT);
+} else {
+  $stmt = $pdo->prepare("SELECT * FROM books ORDER BY id DESC");
+}
 
 try {
   // Fetch paginated books

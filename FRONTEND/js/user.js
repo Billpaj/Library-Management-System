@@ -1,4 +1,5 @@
 const borrowedBooks = [];
+let borrowLimit = 5; // You can fetch this from the backend later if it's configurable
 
 // 📦 Fetch available books and render
 window.addEventListener("DOMContentLoaded", () => {
@@ -7,55 +8,77 @@ window.addEventListener("DOMContentLoaded", () => {
   fetch("../BACKEND/fetch-books.php")
     .then((response) => response.json())
     .then((data) => {
-      const books = Array.isArray(data.books) ? data.books : data; // fallback
+      const books = Array.isArray(data.books) ? data.books : data;
       if (!Array.isArray(books)) {
         showToast("Failed to load books.", "error");
         return;
       }
 
-      books.forEach((book) => {
-        const card = document.createElement("div");
-        card.className = "book-card";
-        const imageUrl = book.image ? book.image : "assets/images/book.jpg";
+      // Store book list for access by ID
+      const bookMap = {};
+      books.forEach(book => bookMap[book.id] = book);
 
-        card.innerHTML = `
-  <img src="${imageUrl}" alt="${book.title}">
-  <h4>${book.title}</h4>
-  <p>${book.author}</p>
-  <button data-id="${book.id}">Borrow</button>
-`;
+      fetch("../BACKEND/get-borrowed.php", { credentials: "include" })
+        .then((res) => res.json())
+        .then((borrowed) => {
+          const borrowedCount = borrowed.length;
+          const borrowedIds = borrowed.map(b => b.id);
 
-        const button = card.querySelector("button");
-        button.addEventListener("click", () => {
-          const bookId = button.getAttribute("data-id");
+          books.forEach((book) => {
+            const card = document.createElement("div");
+            card.className = "book-card";
+            const imageUrl = book.image ? book.image : "assets/images/book.jpg";
 
-          fetch("../BACKEND/borrow-book.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({ book_id: bookId }),
-          })
-            .then((res) => res.json())
-            .then((res) => {
-              showToast(res.message, res.success ? "success" : "error");
-              if (res.success) {
-                button.innerText = "Borrowed";
-                button.disabled = true;
-                button.style.backgroundColor = "gray";
-                loadBorrowedBooks(); // refresh list
-              }
-            })
-            .catch(() => showToast("Something went wrong.", "error"));
+            const isBorrowed = borrowedIds.includes(parseInt(book.id));
+            const isDisabled = borrowedCount >= borrowLimit || book.quantity <= 0;
+
+            card.innerHTML = `
+              <img src="${imageUrl}" alt="${book.title}">
+              <h4>${book.title}</h4>
+              <p>${book.author}</p>
+              <button data-id="${book.id}" ${isDisabled ? 'disabled' : ''}>
+                ${isBorrowed ? "Borrowed" : "Borrow"}
+              </button>
+            `;
+
+            const button = card.querySelector("button");
+            if (!isBorrowed && !isDisabled) {
+              button.addEventListener("click", () => {
+                const bookId = button.getAttribute("data-id");
+
+                fetch("../BACKEND/borrow-book.php", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                  body: new URLSearchParams({ book_id: bookId }),
+                })
+                  .then((res) => res.json())
+                  .then((res) => {
+                    showToast(res.message, res.success ? "success" : "error");
+                
+                    if (res.success) {
+                      button.innerText = "Borrowed";
+                      button.disabled = true;
+                      button.style.backgroundColor = "gray";
+                      loadBorrowedBooks();
+                    } else if (res.message.includes("Borrowing limit")) {
+                      disableAllBorrowButtons();
+                    }
+                  })
+                  .catch(() => showToast("Something went wrong.", "error"));
+                
+              });
+            }
+
+            bookGrid.appendChild(card);
+          });
         });
-
-        bookGrid.appendChild(card);
-      });
     })
     .catch((error) => {
       console.error("Fetch error:", error);
       showToast("Error fetching books.", "error");
     });
 
-  loadBorrowedBooks(); // Load borrowed list on load
+  loadBorrowedBooks();
 });
 
 // 🧾 Load and render borrowed books
@@ -116,6 +139,7 @@ function loadBorrowedBooks() {
               showToast(res.message, res.success ? "success" : "error");
               if (res.success) {
                 loadBorrowedBooks(); // Refresh after return
+                window.location.reload(); // Refresh to show re-enabled borrow button
               }
             });
         });
@@ -149,6 +173,18 @@ function showToast(message, type = "success") {
     toast.style.opacity = 1;
     toast.style.transform = "translateY(0)";
   });
+
+  function disableAllBorrowButtons() {
+    const buttons = document.querySelectorAll("button[data-id]");
+    buttons.forEach(btn => {
+      btn.disabled = true;
+      btn.innerText = "Limit Reached";
+      btn.style.backgroundColor = "#ccc";
+      btn.style.cursor = "not-allowed";
+    });
+  }
+  
+  
 
   setTimeout(() => {
     toast.style.opacity = 0;

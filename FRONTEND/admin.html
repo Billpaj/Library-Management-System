@@ -18,9 +18,9 @@
       <nav>
         <ul>
           <li class="active" id="dashboardLink"><i class="fas fa-chart-line"></i> Dashboard</li>
-          <li id="manageBooksLink"><i class="fas fa-book"></i> Manage Books</li>
+          <li id="booksLink"><i class="fas fa-book"></i> Manage Books</li>
           <li id="usersLink"><i class="fas fa-users"></i> Users</li>
-          <li><i class="fas fa-cogs"></i> Settings</li>
+          <li id="settingsLink"><i class="fas fa-cogs"></i> Settings</li>
           <li><i class="fas fa-sign-out-alt"></i> <a href="../BACKEND/logout.php">Logout</a></li>
         </ul>
         <button id="toggle-theme" class="btn btn-toggle">Toggle Theme</button>
@@ -42,7 +42,7 @@
         <i class="fas fa-arrow-left"></i> Back to Dashboard
       </button>
 
-      <!-- 👤 Users Section -->
+      <!-- Users Section -->
       <section id="usersSection" class="table-section" style="display: none;">
         <h2>All Users</h2>
         <p><strong>Total Users:</strong> <span id="totalUsersCount">0</span></p>
@@ -61,7 +61,7 @@
         </table>
       </section>
 
-      <!-- 📊 Summary Cards -->
+      <!-- Summary Cards -->
       <section class="summary-cards">
         <div class="card">
           <h3>Total Books</h3>
@@ -77,6 +77,18 @@
         </div>
       </section>
 
+      <!-- Borrow Limit Configuration -->
+<section class="settings-section">
+  <h3>Borrow Settings</h3>
+  <form id="borrowLimitForm" style="margin-top: 10px;">
+    <label for="borrowLimit">Max books a user can borrow:</label>
+    <input type="number" id="borrowLimit" min="1" style="width: 60px;" required />
+    <button type="submit" class="btn">Update Limit</button>
+  </form>
+  <small id="borrowLimitMessage" style="color: green; display: none;">Updated!</small>
+</section>
+
+
       <!-- 📈 Charts -->
       <section class="charts">
         <div class="chart-card">
@@ -85,8 +97,29 @@
         </div>
       </section>
 
-      <!-- 📚 Book Table -->
-      <section class="table-section">
+      <!--  Settings Section (Hidden by Default) -->
+<section id="settingsSection" class="table-section" style="display: none;">
+  <h2>Settings</h2>
+
+  <form id="borrowLimitForm" style="max-width: 400px;">
+    <label for="borrowLimitInput"><strong>Maximum Books a User Can Borrow:</strong></label>
+    <input
+      type="number"
+      id="borrowLimitInput"
+      name="borrow_limit"
+      min="1"
+      style="margin: 10px 0; padding: 8px; width: 100%;"
+      required
+    />
+    <button type="submit" class="btn btn-add" style="margin-top: 10px;">Update Limit</button>
+  </form>
+
+  <p id="borrowLimitMessage" style="margin-top: 15px;"></p>
+</section>
+
+
+      <!-- Book Table -->
+      <section id="booksSection" class="table-section">
         <table class="book-table">
           <thead>
             <tr>

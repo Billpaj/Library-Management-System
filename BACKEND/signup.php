@@ -46,7 +46,9 @@ try {
   $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, dob, phone) VALUES (?, ?, ?, ?, ?, ?)");
   $stmt->execute([$username, $email, $hashedPassword, $role, $dob, $phone]);
 
-  echo json_encode(["success" => true, "message" => "Account created successfully."]);
+  // ✅ Redirect to signup with success flag
+  header("Location: ../FRONTEND/signup.html?success=true");
+  exit();
 
 } catch (PDOException $e) {
   echo json_encode(["success" => false, "message" => "Database error: " . $e->getMessage()]);

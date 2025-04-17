@@ -31,6 +31,10 @@ try {
   $update = $pdo->prepare("UPDATE borrowed_books SET returned = 1, return_date = NOW() WHERE user_id = ? AND book_id = ? AND returned = 0");
   $update->execute([$user_id, $book_id]);
 
+  // ✅ Increase the quantity in the books table
+  $restore = $pdo->prepare("UPDATE books SET quantity = quantity + 1 WHERE id = ?");
+  $restore->execute([$book_id]);
+
   echo json_encode(["success" => true, "message" => "Book returned successfully."]);
 
 } catch (PDOException $e) {

@@ -109,7 +109,7 @@ function deleteBook(index) {
 }
 
 function fetchBooks() {
-  fetch("../BACKEND/fetch-books.php", {
+  fetch("../BACKEND/fetch-books.php?limit=100", {
     credentials: "include",
   })
     .then((response) => {
@@ -175,6 +175,20 @@ usersLink?.addEventListener("click", () => {
 
       document.getElementById("totalUsersCount").innerText = users.length;
 
+      const booksLink = document.getElementById("booksLink");
+
+booksLink?.addEventListener("click", () => {
+  // Hide other dashboard views
+  document.querySelector(".summary-cards").style.display = "none";
+  document.querySelector(".charts").style.display = "none";
+  document.getElementById("usersSection").style.display = "none";
+
+  // Show books section
+  document.querySelector("#booksSection").style.display = "block";
+  document.querySelector(".dashboard-header").style.display = "flex";
+});
+
+
       // Search input
       document.getElementById("userSearchInput")?.addEventListener("input", function () {
         const query = this.value.toLowerCase();
@@ -190,14 +204,39 @@ usersLink?.addEventListener("click", () => {
     });
 });
 
-// ✅ Back to Dashboard
+const settingsLink = document.getElementById("settingsLink");
+const settingsSection = document.getElementById("settingsSection");
+
+settingsLink?.addEventListener("click", () => {
+  // Hide other views
+  document.querySelectorAll(".table-section, .charts, .summary-cards").forEach(el => el.style.display = "none");
+
+  // Show settings view
+  settingsSection.style.display = "block";
+  backBtn.style.display = "inline-block";
+
+  // Load current limit
+  fetch("../BACKEND/get-setting.php?key=borrow_limit", { credentials: "include" })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("borrowLimitInput").value = data.value || 3;
+    })
+    .catch(() => {
+      showMessage("Failed to load borrow limit.", true);
+    });
+});
+
+
+//  Back to Dashboard
 backBtn?.addEventListener("click", () => {
   document.getElementById("usersSection").style.display = "none";
+  document.querySelector("#booksSection").style.display = "block";
   document.querySelector(".summary-cards").style.display = "flex";
   document.querySelector(".charts").style.display = "block";
-  document.querySelector(".table-section").style.display = "block";
   backBtn.style.display = "none";
 });
+
+
 
 function deleteUser(userId) {
   if (!confirm("Are you sure you want to delete this user?")) return;
@@ -319,3 +358,57 @@ window.onclick = function (event) {
 };
 
 fetchBooks();
+
+document.getElementById("borrowLimitForm")?.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const limit = document.getElementById("borrowLimitInput").value;
+  const message = document.getElementById("borrowLimitMessage");
+
+  fetch("../BACKEND/update-setting.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ key: "borrow_limit", value: limit }),
+    credentials: "include"
+  })
+    .then(res => res.json())
+    .then(data => {
+      message.innerText = data.message;
+      message.style.color = data.success ? "green" : "red";
+    })
+    .catch(() => {
+      message.innerText = "Failed to update setting.";
+      message.style.color = "red";
+    });
+});
+
+// 🎯 Fetch current borrow limit on page load
+fetch("../BACKEND/get-borrow-limit.php")
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("borrowLimit").value = data.limit || 3;
+  });
+
+// 📝 Submit new limit
+document.getElementById("borrowLimitForm")?.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const newLimit = document.getElementById("borrowLimit").value;
+
+  fetch("../BACKEND/update-borrow-limit.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ limit: newLimit }),
+    credentials: "include"
+  })
+    .then(res => res.json())
+    .then(data => {
+      showMessage(data.message, !data.success);
+      if (data.success) {
+        const msg = document.getElementById("borrowLimitMessage");
+        msg.style.display = "inline";
+        setTimeout(() => msg.style.display = "none", 2000);
+      }
+    });
+});
+
+
